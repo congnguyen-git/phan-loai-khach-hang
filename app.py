@@ -15,12 +15,21 @@ if uploaded_file is not None:
     st.subheader("1. Tổng quan Dữ liệu Khách hàng")
     st.dataframe(df.head(10))
 
-    st.subheader("2. Trực quan hóa Phân cụm Khách hàng (3D Scatter Plot)")
-    df['Cluster_Name'] = df['Cluster'].astype(str)
+    st.subheader("2. Trực quan hóa Phân cụm Khách hàng (Biểu đồ Phân tán 3D)")
+    df['Tên_Cụm'] = df['Cluster'].astype(str)
+    
+    # Đã thêm tham số 'labels' để dịch tên các trục x, y, z sang tiếng Việt
     fig = px.scatter_3d(df, x='Recency', y='Frequency', z='Monetary',
-                        color='Cluster_Name',
+                        color='Tên_Cụm',
                         title='Phân bố Khách hàng theo R-F-M (Thang đo Logarit)',
+                        labels={
+                            'Recency': 'Ngày mua gần nhất (R)',
+                            'Frequency': 'Tần suất mua (F)',
+                            'Monetary': 'Tổng chi tiêu (M)',
+                            'Tên_Cụm': 'Cụm KH'
+                        },
                         log_x=True, log_y=True, log_z=True, height=750)
+    
     fig.update_traces(marker=dict(size=4, opacity=0.8))
     st.plotly_chart(fig, use_container_width=True)
 
@@ -33,4 +42,4 @@ if uploaded_file is not None:
     with col3:
         st.warning(" Nhóm Tiềm Năng (Cụm 2)\n\n**Hành động:** Gửi bản tin sản phẩm mới, nhắc nhở điểm tích lũy.")
     with col4:
-        st.error(" Nhóm Rủi Ro (Cụm 3)\n\n**Hành động:** Remarketing, khảo sát tặng ưu đãi lớn (Giảm 30-50%).")
+        st.error(" Nhóm Rủi Ro (Cụm 3)\n\n**Hành động:** Tiếp thị lại (Remarketing), khảo sát tặng ưu đãi lớn (Giảm 30-50%).")
