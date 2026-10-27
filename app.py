@@ -7,7 +7,7 @@ st.title(" Ứng dụng Phân loại & Chăm sóc Khách hàng")
 st.markdown("Vui lòng tải lên file dữ liệu để xem biểu đồ và chiến lược chăm sóc.")
 
 # Nút cho thằng bạn tự tải file lên
-uploaded_file = st.file_uploader("Tải file 'rfm_clustered_results.csv' vào đây", type=['csv'])
+uploaded_file = st.file_uploader("Tải file 'khách hàng.csv' vào đây", type=['csv'])
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
