@@ -34,12 +34,35 @@ if uploaded_file is not None:
     st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("3. Chiến lược Chăm sóc tự động theo Phân khúc")
+    
+    # 1. Tự động tính trung bình R, F, M của mỗi cụm
+    cluster_avg = df.groupby('Cluster').mean(numeric_only=True).reset_index()
+    
+    # 2. Xây dựng Logic tự động tìm ra cụm nào là VIP, Rủi ro, Mới, Tiềm năng
+    # VIP = Cụm có tiền chi tiêu (Monetary) cao nhất
+    vip_cluster = cluster_avg.loc[cluster_avg['Monetary'].idxmax()]['Cluster']
+    
+    # Rủi ro = Cụm có số ngày chưa mua (Recency) cao nhất
+    risk_cluster = cluster_avg.loc[cluster_avg['Recency'].idxmax()]['Cluster']
+    
+    # Lấy 2 cụm còn lại
+    remaining = cluster_avg[(cluster_avg['Cluster'] != vip_cluster) & (cluster_avg['Cluster'] != risk_cluster)]
+    
+    if len(remaining) == 2:
+        # Khách Mới = Trong 2 cụm còn lại, cụm nào mua gần đây hơn (Recency thấp hơn)
+        new_cluster = remaining.loc[remaining['Recency'].idxmin()]['Cluster']
+        # Tiềm năng = Cụm cuối cùng
+        pot_cluster = remaining.loc[remaining['Recency'].idxmax()]['Cluster']
+    else:
+        new_cluster, pot_cluster = -1, -1 # Phòng hờ lỗi
+
+    # 3. Hiển thị giao diện tự động lấy đúng số cụm
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.success(" Nhóm VIP (Cụm 1)\n\n**Hành động:** Gửi quà tri ân, chăm sóc 1-1, mời tham gia sự kiện.")
+        st.success(f" Nhóm VIP (Cụm {int(vip_cluster)})\n\n**Hành động:** Gửi quà tri ân, chăm sóc 1-1, mời tham gia sự kiện.")
     with col2:
-        st.info(" Nhóm KH Mới (Cụm 0)\n\n**Hành động:** Gửi email cảm ơn, tặng voucher 10% lần mua tiếp theo.")
+        st.info(f" Nhóm KH Mới (Cụm {int(new_cluster)})\n\n**Hành động:** Gửi email cảm ơn, tặng voucher 10% lần mua tiếp theo.")
     with col3:
-        st.warning(" Nhóm Tiềm Năng (Cụm 2)\n\n**Hành động:** Gửi bản tin sản phẩm mới, nhắc nhở điểm tích lũy.")
+        st.warning(f" Nhóm Tiềm Năng (Cụm {int(pot_cluster)})\n\n**Hành động:** Gửi bản tin sản phẩm mới, nhắc nhở điểm tích lũy.")
     with col4:
-        st.error(" Nhóm Rủi Ro (Cụm 3)\n\n**Hành động:** Tiếp thị lại (Remarketing), khảo sát tặng ưu đãi lớn (Giảm 30-50%).")
+        st.error(f" Nhóm Rủi Ro (Cụm {int(risk_cluster)})\n\n**Hành động:** Tiếp thị lại (Remarketing), khảo sát tặng ưu đãi lớn (Giảm 30-50%).")
